@@ -1,0 +1,43 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.swp
+*.userprefs
+
+# BenchmarkDotNet
+BenchmarkDotNet.Artifacts/
+
+# IDEs
+.vs/
+.vscode/
+.idea/
+*.iml
+*.DotSettings.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Profiling output
+*.nettrace
+*.diagsession
+*.etl
+*.diagpkg
+*.gcdump
+*.dmp
+
+# Coverage
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.opencover.xml
+
+# Tooling
+.dotnet/
+.tools/
+.cache/

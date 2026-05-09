@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Concurrency.Shared</RootNamespace>
+    <AssemblyName>Concurrency.Shared</AssemblyName>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Chapter07</RootNamespace>
+    <AssemblyName>Chapter07.TPL</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Shared\Concurrency.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

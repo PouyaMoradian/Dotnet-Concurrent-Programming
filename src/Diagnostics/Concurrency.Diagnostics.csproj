@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Concurrency.Diagnostics</RootNamespace>
+    <AssemblyName>Concurrency.Diagnostics</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Concurrency.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

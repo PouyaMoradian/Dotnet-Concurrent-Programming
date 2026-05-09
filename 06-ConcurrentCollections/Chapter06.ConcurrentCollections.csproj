@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Chapter06</RootNamespace>
+    <AssemblyName>Chapter06.ConcurrentCollections</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Shared\Concurrency.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

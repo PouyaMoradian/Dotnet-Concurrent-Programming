@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Chapter14</RootNamespace>
+    <AssemblyName>Chapter14.AdvancedPatterns</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Shared\Concurrency.Shared.csproj" />
+    <PackageReference Include="System.Threading.RateLimiting" />
+    <PackageReference Include="Polly" />
+  </ItemGroup>
+
+</Project>

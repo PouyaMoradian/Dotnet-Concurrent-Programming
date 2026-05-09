@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Chapter03</RootNamespace>
+    <AssemblyName>Chapter03.ThreadPool</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Shared\Concurrency.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

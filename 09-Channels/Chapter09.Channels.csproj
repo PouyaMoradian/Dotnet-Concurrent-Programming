@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Chapter09</RootNamespace>
+    <AssemblyName>Chapter09.Channels</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Shared\Concurrency.Shared.csproj" />
+    <PackageReference Include="System.Threading.Channels" />
+  </ItemGroup>
+
+</Project>

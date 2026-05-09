@@ -1,0 +1,64 @@
+# EditorConfig — https://editorconfig.org/
+# Concurrency code is hard enough; consistent formatting is non-negotiable.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+indent_size = 2
+
+[*.{json,yml,yaml,csproj,props,targets}]
+indent_size = 2
+
+[*.cs]
+# Style
+csharp_style_namespace_declarations = file_scoped:error
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+
+# Newer language features
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_prefer_pattern_matching = true:suggestion
+csharp_style_prefer_collection_expression = when_types_loosely_match:suggestion
+
+# Nullable
+dotnet_diagnostic.CS8600.severity = error
+dotnet_diagnostic.CS8602.severity = error
+dotnet_diagnostic.CS8603.severity = error
+dotnet_diagnostic.CS8618.severity = error
+
+# Naming — repo uses "Shared"/"Diagnostics" as namespace tails; suppress reserved-keyword analyser.
+dotnet_diagnostic.CA1716.severity = none
+
+# Demos & benchmarks intentionally violate some "production" rules that don't apply here.
+dotnet_diagnostic.CA1707.severity = none   # Allow underscores in benchmark member names.
+dotnet_diagnostic.CA1822.severity = none   # Allow non-static methods (BDN benchmarks use instances).
+dotnet_diagnostic.CA1050.severity = none   # Allow top-level statement types without explicit namespace.
+dotnet_diagnostic.CA1051.severity = none   # Allow public fields (BDN [Params] needs them).
+dotnet_diagnostic.CA2008.severity = none   # Don't require explicit TaskScheduler in demos.
+dotnet_diagnostic.CA1849.severity = none   # Allow Cancel()/.Wait() in demos for clarity.
+dotnet_diagnostic.CA1416.severity = none   # Cross-platform demos discuss per-OS APIs descriptively.
+dotnet_diagnostic.CA2016.severity = none   # Demo bodies sometimes use _ for the inner ct intentionally.
+
+# Async hygiene — these matter for this repo specifically.
+dotnet_diagnostic.CA2007.severity = none      # ConfigureAwait — we discuss it explicitly per chapter.
+dotnet_diagnostic.CA2008.severity = warning   # Don't create tasks without TaskScheduler.
+dotnet_diagnostic.CA1849.severity = warning   # Call async methods when in async method.
+dotnet_diagnostic.VSTHRD002.severity = warning
+dotnet_diagnostic.VSTHRD100.severity = error  # Avoid async void.
+dotnet_diagnostic.VSTHRD101.severity = error  # Avoid unsupported async delegates.
+dotnet_diagnostic.VSTHRD103.severity = warning
+dotnet_diagnostic.VSTHRD110.severity = warning
+dotnet_diagnostic.VSTHRD200.severity = none   # Async suffix — pedantic, off in this repo.

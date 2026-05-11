@@ -1,4 +1,4 @@
-# Synchronisation vs Asynchrony
+# Synchronisation vs Asynchrony — overview
 
 These two words are routinely confused with **blocking** vs **non-blocking** and **sequential** vs **parallel**. They are not synonymous.
 
@@ -15,15 +15,13 @@ These two words are routinely confused with **blocking** vs **non-blocking** and
 - **Sync non-blocking**: a tight CPU loop. Returns when done; never blocks.
 - **Async blocking**: an `async` method that internally does `Thread.Sleep`. Returns a `Task`, but the worker thread is parked. **Anti-pattern.**
 
-## In C# specifically
+## Read deeper
 
-| Construct | Sync? | Async? | Notes |
-|---|---|---|---|
-| `void M() { … }` | yes | no | nothing special |
-| `Task M() { … }` returning a completed task | sync | sometimes | "fake-async" if no `await` inside |
-| `async Task M() { … }` | no | yes | compiler generates a state machine |
-| `async ValueTask M() { … }` | no | yes | allocation-free fast path |
-| `async void M() { … }` | no | yes — but unobservable | exceptions become unhandled; **only** for event handlers |
+| File | What it covers |
+|---|---|
+| [01-Four-Quadrants.md](01-Four-Quadrants.md) | Sync/async × blocking/non-blocking — all four cells with real examples |
+| [02-Async-Mechanics.md](02-Async-Mechanics.md) | What `async`/`await` actually compiles to: state machines, awaiters, continuations |
+| [03-Common-Confusions.md](03-Common-Confusions.md) | `.Result`, `.Wait()`, `async void`, sync-over-async, async-over-sync, `ConfigureAwait(false)` |
 
 ## What `async/await` actually buys you
 
@@ -32,9 +30,13 @@ Two things:
 1. **Concurrency without thread pinning.** A request that awaits IO releases its worker; another request can run on it. This is how an ASP.NET Core process handles thousands of concurrent requests on a thread pool of dozens.
 2. **Composability.** `await` makes "wait for async result, then continue" look like sequential code. Without it, callbacks pyramid.
 
-It does **not** automatically buy you parallelism, non-blocking IO at the kernel level (that's the IO API's job — `ReadAsync` on a `FileStream` may still block if the underlying handle is opened synchronously), or thread safety.
+It does **not** automatically buy you:
+
+- Parallelism. `async` is *concurrency*; parallelism comes from running on multiple threads, which `Task.Run` and `Parallel.*` provide.
+- Non-blocking IO at the kernel level. That's the IO API's job — `ReadAsync` on a `FileStream` may still block if the underlying handle is opened synchronously, because Windows file IO is synchronous by default.
+- Thread safety. An `async` method that mutates shared state has the same race conditions as a synchronous one would.
 
 ## See also
 
-- [08-Async-Await-Deep-Dive](../../08-Async-Await-Deep-Dive/) — the state machine, the synchronisation context, ConfigureAwait, allocation-free patterns.
+- [08-Async-Await-Deep-Dive](../../08-Async-Await-Deep-Dive/) — the state machine, the synchronisation context, `ConfigureAwait`, allocation-free patterns.
 - [18-Pitfalls/SyncOverAsync](../../18-Pitfalls-and-Anti-Patterns/SyncOverAsync) — `.Result`/`.Wait()`-induced deadlocks.

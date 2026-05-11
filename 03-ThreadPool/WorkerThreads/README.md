@@ -1,6 +1,6 @@
 # Worker threads
 
-Pool workers are general-purpose threads that run user delegates and async continuations. They use the work-stealing deque architecture covered in [01/Work-Stealing](../../01-Fundamentals/Work-Stealing/), but there are details worth knowing.
+Pool workers are general-purpose threads that run user delegates and async continuations. They use the work-stealing deque architecture covered in [01/06-Work-Stealing](../../01-Fundamentals/06-Work-Stealing/), but there are details worth knowing.
 
 ## Lifecycle
 

@@ -23,7 +23,7 @@ Definitions of every term used in this repository.
 - **CAS (Compare-And-Swap)** — Atomic primitive: if the location equals expected, replace with new. The basis of most lock-free algorithms. → [05/CompareExchange](../../05-Atomic-Operations/CompareExchange/).
 - **Channel** — `System.Threading.Channels.Channel<T>`. Async producer/consumer queue. → [09](../../09-Channels/).
 - **Circuit breaker** — Resilience pattern that stops calls to a dependency after observed failures, then re-tests cautiously. → [14/CircuitBreakers](../../14-Advanced-Patterns/CircuitBreakers/).
-- **Concurrency** — Multiple independent activities in flight (not necessarily simultaneous). → [01/Concurrency-vs-Parallelism](../../01-Fundamentals/Concurrency-vs-Parallelism/).
+- **Concurrency** — Multiple independent activities in flight (not necessarily simultaneous). → [01/02-Concurrency-vs-Parallelism](../../01-Fundamentals/02-Concurrency-vs-Parallelism/).
 - **Context switch** — OS swaps one thread off a CPU and another on. ~1–10 µs typical. → [00/Context-Switching](../../00-Prerequisites/Context-Switching/).
 - **Cooperative cancellation** — Code voluntarily checks a cancellation token; preemption is not allowed. → [13/CooperativeCancellation](../../13-Cancellation-and-Coordination/CooperativeCancellation/).
 
@@ -84,7 +84,7 @@ Definitions of every term used in this repository.
 
 ## P
 
-- **Parallelism** — Multiple activities executing simultaneously. → [01/Concurrency-vs-Parallelism](../../01-Fundamentals/Concurrency-vs-Parallelism/).
+- **Parallelism** — Multiple activities executing simultaneously. → [01/02-Concurrency-vs-Parallelism](../../01-Fundamentals/02-Concurrency-vs-Parallelism/).
 - **PLINQ** — Parallel LINQ. → [11](../../11-PLINQ/).
 - **POH (Pinned Object Heap)** — Separate heap for pinned objects (.NET 5+).
 - **Producer/consumer** — Pattern where some tasks produce items and others consume them. Often via a queue/channel.
@@ -123,4 +123,4 @@ Definitions of every term used in this repository.
 ## W
 
 - **Wait-free** — Stronger than lock-free: every thread makes progress in a bounded number of steps.
-- **Work stealing** — ThreadPool worker takes work from another's queue when its own is empty. → [01/Work-Stealing](../../01-Fundamentals/Work-Stealing/).
+- **Work stealing** — ThreadPool worker takes work from another's queue when its own is empty. → [01/06-Work-Stealing](../../01-Fundamentals/06-Work-Stealing/).

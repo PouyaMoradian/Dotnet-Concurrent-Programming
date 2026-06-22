@@ -53,7 +53,7 @@ var locals = new long[Environment.ProcessorCount * 16];   // crude line-padding
 Parallel.For(0, 1_000_000,
     () => 0L,
     (i, _, local) => local + 1,
-    local => Interlocked.Add(ref locals[Thread.GetCurrentProcessorId() * 16], local));
+    local => Interlocked.Add(ref locals[(Thread.GetCurrentProcessorId() % Environment.ProcessorCount) * 16], local));
 long total = locals.Sum();
 ```
 

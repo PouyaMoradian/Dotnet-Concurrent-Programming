@@ -16,7 +16,7 @@ For .NET developers, SIMD shows up in three increasingly explicit ways: autovect
 | ARM | NEON (ARM's 128-bit SIMD extension; not an acronym) | 128 b | 2005 | Baseline of every ARM64. |
 | ARM | SVE / SVE2 (Scalable Vector Extension) | scalable (128–2048 b) | 2016–present | Length-agnostic; vector length is a runtime quantity. |
 
-On a desktop in 2026 you can assume AVX2 widely. AVX-512 is server-typical (Sapphire Rapids, EPYC Genoa) and laptop-spotty. On ARM, NEON is everywhere; SVE2 is on Apple M4 (effective 128 b), Neoverse V2, etc.
+On a desktop in 2026 you can assume AVX2 widely. AVX-512 is server-typical (Sapphire Rapids, EPYC Genoa) and laptop-spotty. On ARM, NEON is everywhere; SVE2 is on server cores like Neoverse V2. Apple's M-series stays on 128-bit NEON for general-purpose SIMD — the M4 added SME/SME2 (the Scalable Matrix Extension, used in a special streaming mode), not user-mode SVE2.
 
 ## What the .NET runtime exposes
 
@@ -51,14 +51,14 @@ public static long Sum(ReadOnlySpan<int> data)
         var vsum = Vector<int>.Zero;
         for (; i <= data.Length - Vector<int>.Count; i += Vector<int>.Count)
             vsum += new Vector<int>(data[i..]);
-        sum = Vector.Sum(vsum);  // .NET 7+: lane-wise reduction
+        sum = Vector.Sum(vsum);  // .NET 6+: lane-wise reduction
     }
     for (; i < data.Length; i++) sum += data[i];
     return sum;
 }
 ```
 
-`Vector<T>.Count` is decided at JIT time based on the host CPU. On a NEON box it's 4 for `int`; on AVX2 it's 8; on AVX-512 it's 16. The same source compiles to optimal width on each machine.
+`Vector<T>.Count` is decided at JIT time based on the host CPU. On a NEON box it's 4 for `int`; on AVX2 it's 8. Note that `Vector<T>` is **capped at 256-bit** in current .NET (so `Vector<int>.Count` stays 8 even on AVX-512 hardware) — to get 512-bit width you must use the fixed-size `Vector512<T>` explicitly. The same source compiles to optimal width on each machine.
 
 ### Layer 3 — sized vectors `Vector128/256/512<T>`
 
@@ -84,7 +84,8 @@ using System.Runtime.Intrinsics.X86;
 if (Avx2.IsSupported)
 {
     // Compute the absolute value of 8 ints in one instruction.
-    Vector256<int> abs = Avx2.Abs(Vector256.Create(-1, -2, 3, -4, 5, -6, 7, -8));
+    // Avx2.Abs returns unsigned lanes, so the result type is Vector256<uint>.
+    Vector256<uint> abs = Avx2.Abs(Vector256.Create(-1, -2, 3, -4, 5, -6, 7, -8));
 }
 ```
 

@@ -139,11 +139,11 @@ These are good design defaults even without false sharing in mind.
 The .NET runtime uses padded types internally where it matters:
 
 - **`ConcurrentQueue<T>.Segment`** has a padded `_headAndTail` struct.
-- **`ConcurrentDictionary<TKey, TValue>`** stripes its locks and pads the lock array.
+- **`ConcurrentDictionary<TKey, TValue>`** stripes its locks (a separate lock per bucket group, ≈`ProcessorCount` locks) to cut contention. (The lock *array* itself isn't cache-line-padded — the win comes from spreading writes across many independent lock objects.)
 - **`Random.Shared`** uses per-thread instances internally.
 - **`Counter<long>` (System.Diagnostics.Metrics)** uses sharded accumulation; the implementation is in `Sdk.cs` / `MetricsManager.cs`.
 
-The `[StructLayout(LayoutKind.Explicit, Size = 192)]` you might see in BCL source is exactly the technique above, sized to a comfortably-large multiple of typical line sizes. Some internal types use a `PaddingFor32` field that adds 32 bytes — this is for *48-byte-line* targets that don't exist on real hardware but are kept for portability assumptions.
+The `[StructLayout(LayoutKind.Explicit, Size = 192)]` you might see in BCL source is exactly the technique above, sized to a comfortably-large multiple of typical line sizes. Some internal types use a `PaddingFor32` field, which pads a 32-bit field (an `int`) out to a full cache line — `CACHE_LINE_SIZE - sizeof(int)`, i.e. 60 bytes on a 64-byte line, 124 bytes on ARM64's 128-byte line. The `32` in the name refers to the 32-bit field being padded, not to a byte count.
 
 ## A reference table
 

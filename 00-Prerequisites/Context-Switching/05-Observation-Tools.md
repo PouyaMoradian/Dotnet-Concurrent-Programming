@@ -29,16 +29,15 @@ This is the first thing to look at when "the server is slow but I don't know why
 `dotnet-trace` collects EventPipe events:
 
 ```bash
-dotnet-trace collect -p <pid> --providers Microsoft-DotNETCore-SampleProfiler,Microsoft-Windows-DotNETRuntime:0x10000:0
+dotnet-trace collect -p <pid> --providers Microsoft-DotNETCore-SampleProfiler,Microsoft-Windows-DotNETRuntime:0x14000:4
 ```
 
 Useful providers for context-switch / contention analysis:
 
 | Provider / keyword | Why |
 |---|---|
-| `Microsoft-Windows-DotNETRuntime:0x10000` (Contention) | Per-lock contention start/stop events with thread IDs |
-| `Microsoft-Windows-DotNETRuntime:0x100` (Threading) | Pool worker creation, IO completion thread creation |
-| `Microsoft-Windows-DotNETRuntime:0x8000000` (Threadpool work events) | Each item enqueued/dequeued/started |
+| `Microsoft-Windows-DotNETRuntime:0x4000` (ContentionKeyword) | Per-lock contention start/stop events with thread IDs |
+| `Microsoft-Windows-DotNETRuntime:0x10000` (ThreadingKeyword) | Pool worker / IO completion thread creation, plus ThreadPool work-item enqueue/dequeue/start |
 | `Microsoft-DotNETCore-SampleProfiler` | Sampled call-stacks (CPU profiling) |
 
 Open the resulting `.nettrace` in PerfView, Speedscope, or Visual Studio's Performance Profiler. PerfView's "Thread Time" view is invaluable for spotting blocked-time gaps.

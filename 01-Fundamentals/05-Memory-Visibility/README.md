@@ -44,7 +44,7 @@ If you find yourself reading or writing a shared variable without a lock:
 
 1. Have you proved the read order doesn't matter? (E.g., a monotonically growing counter you read only for telemetry.)
 2. If order matters: **always** use `Volatile.Read`/`Volatile.Write` or `Interlocked`.
-3. Don't trust `volatile` (the C# keyword) on `long`/`double` — it doesn't fix tearing on 32-bit. `Interlocked.Read`/`Volatile.Read` (.NET 7+ overloads) does.
+3. Don't trust `volatile` (the C# keyword) on `long`/`double` — it doesn't fix tearing on 32-bit. `Interlocked.Read` (for `long`/`ulong`, available since .NET Framework 2.0) or `Volatile.Read` does.
 
 ## Demos
 

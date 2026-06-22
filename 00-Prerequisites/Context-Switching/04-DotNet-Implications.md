@@ -105,7 +105,7 @@ The context-switch implication: capturing a context means the continuation likel
 ## Practical takeaways
 
 - `await Task.Delay(x)` instead of `Thread.Sleep(x)` in async paths — always.
-- Don't take a `lock` across `await` (the BCL forbids it for `Monitor`; some primitives like `SemaphoreSlim` allow it).
+- Don't take a `lock` across `await` (the C# compiler forbids it — error CS1996; some primitives like `SemaphoreSlim` allow async-friendly waiting instead).
 - Keep critical sections short. Aggregate first, lock once.
 - For sub-millisecond timing, you're past the OS's design point. Restructure.
 - The thread pool is your friend. Don't fight it with raw threads for short-lived work.

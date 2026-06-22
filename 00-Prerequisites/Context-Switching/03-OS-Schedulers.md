@@ -19,8 +19,8 @@ Inside a priority class the scheduler does round-robin with a *quantum*:
 
 | OS | Default quantum |
 |---|---|
-| Windows desktop (foreground app) | ~6 quanta of ~6.6 ms = ~40 ms before being preempted; UI threads get a boost on input events |
-| Windows server | up to ~120 ms (longer quanta favour throughput over latency) |
+| Windows client | base quantum = 2 clock intervals (a clock interval is ~15.6 ms, so ~30 ms); the foreground app's threads get up to 3× (~90 ms). UI threads also get a boost on input events |
+| Windows server | 12 clock intervals (~180 ms) — long quanta favour throughput over latency |
 
 Quanta can be tuned via the registry (`Win32PrioritySeparation`) but rarely should be in production code.
 
@@ -51,9 +51,9 @@ Key tunables:
 
 | Knob | Default | Meaning |
 |---|---|---|
-| `sched_min_granularity_ns` | ~1.5 ms | Minimum time a thread runs before someone else can preempt it |
-| `sched_latency_ns` | ~6 ms | Target latency: time within which every runnable thread should run once |
-| `sched_wakeup_granularity_ns` | ~2 ms | A waking thread can preempt a current one only if its `vruntime` is at least this much lower |
+| `sched_min_granularity_ns` | ~0.75 ms | Minimum time a thread runs before someone else can preempt it |
+| `sched_latency_ns` | ~6 ms | Target latency: time within which every runnable thread should run once (scales up with many CPUs) |
+| `sched_wakeup_granularity_ns` | ~1 ms | A waking thread can preempt a current one only if its `vruntime` is at least this much lower |
 
 On a system with many runnable threads, the wakeup granularity prevents constant preemption thrash; on a quiet system it makes wakeups fast.
 

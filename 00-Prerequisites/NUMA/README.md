@@ -37,7 +37,7 @@ The "multi-socket server" model is one form of NUMA, but it's not the only one:
 
 - **AMD EPYC with multiple CCDs.** Each chiplet is a NUMA-ish domain even within one physical socket. Genoa exposes multiple NUMA nodes from a single socket via "**NPS**=4" (NUMA Per Socket) **BIOS** (Basic Input/Output System — the firmware that initialises the platform before the OS boots) mode.
 - **Apple Silicon "M2 Ultra / M3 Max"** uses UltraFusion to glue two chips; access patterns benefit from awareness.
-- **Cloud VMs** sometimes hide NUMA from the guest, sometimes don't. AWS `m6i.metal` exposes 2 nodes; `m6i.32xlarge` is a single guest-NUMA. Azure has both flavours.
+- **Cloud VMs** sometimes hide NUMA from the guest, sometimes don't. Bare-metal and full-socket sizes (e.g. AWS `m6i.metal` / `m6i.32xlarge`, both spanning the host's two Ice Lake sockets) typically expose 2 NUMA nodes; smaller shared sizes often present a single flattened node. Always confirm with `lstopo` / `numactl --hardware` on the actual instance. Azure has both flavours.
 
 You won't always know your topology without checking. Use:
 

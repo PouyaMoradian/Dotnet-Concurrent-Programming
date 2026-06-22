@@ -51,7 +51,7 @@ Two equivalent ways to compute `Math.Max(a, b)`:
 int max1 = a > b ? a : b;
 
 // Branchless (compiles to cmov on x86)
-int max2 = a + ((b - a) & ((b - a) >> 31));
+int max2 = a - ((a - b) & ((a - b) >> 31));   // beware: a - b can overflow for far-apart operands
 ```
 
 On modern x86 the JIT often emits `cmov` for the ternary anyway, which is itself branchless. Check the disassembly before deciding the rewrite is worth the legibility loss.
@@ -105,7 +105,7 @@ On .NET 8+, tiered compilation collects type-feedback at tier-0 and emits devirt
 | Architecture | Mispredict cost (cycles, approx) |
 |---|---|
 | Intel Skylake/IceLake | 15–20 |
-| AMD Zen 4 | 18–22 |
+| AMD Zen 4 | ~13 |
 | Apple M-series | 12–16 (deep pipeline, but wide recovery) |
 | Cortex-A78 | 11–13 |
 

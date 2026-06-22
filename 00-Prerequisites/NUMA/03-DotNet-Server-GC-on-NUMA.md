@@ -60,7 +60,7 @@ A common pattern in pipelines: a producer creates objects, a consumer processes 
 
 ### 3. Don't fight LOH on NUMA
 
-The **LOH** (Large Object Heap — where objects ≥85 KB go; not compacted by default to keep allocation cheap) has its own segments. Large arrays first-touch by their constructor; in Server GC each LOH heap has its own segment, but cross-heap traffic during compaction (.NET 5+ added LOH compaction) can pull pages.
+The **LOH** (Large Object Heap — where objects ≥85 KB go; not compacted by default to keep allocation cheap) has its own segments. Large arrays first-touch by their constructor; in Server GC each LOH heap has its own segment, but cross-heap traffic during compaction (opt-in LOH compaction via `GCSettings.LargeObjectHeapCompactionMode`, available since .NET Framework 4.5.1) can pull pages.
 
 For very large arrays you'll re-use, *allocate them on a thread pinned to the consumer's node and keep them alive*. Throwing them away and re-allocating risks placement drift.
 

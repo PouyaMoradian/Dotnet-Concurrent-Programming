@@ -40,7 +40,7 @@ Other helpful knobs in the same family:
 |---|---|
 | `DOTNET_JitDisasm` | Names of methods to disassemble. |
 | `DOTNET_JitDisasmAssemblies` | Restrict to certain assemblies. |
-| `DOTNET_JitDiffableDasm=1` | Stable formatting; useful for diffing two builds. |
+| `DOTNET_JitDisasmDiffable=1` | Stable formatting (replaces pointer values with fixed placeholders); useful for diffing two builds. |
 | `DOTNET_JitDisasmSummary=1` | Just the method headers, not the bodies. |
 | `DOTNET_JitDump=*Method*` | Dump *internal* JIT IR phases (verbose; for compiler hackers). |
 
@@ -174,7 +174,7 @@ Most of the time. The JIT is good. Most concurrency bugs are not micro-optimisat
 
 ## Further reading
 
-- **`/.dotnet/runtime/docs/design/coreclr/jit/viewing-jit-dumps.md`** — the official inventory of every `DOTNET_Jit*` switch.
+- **dotnet/runtime → `docs/design/coreclr/jit/viewing-jit-dumps.md`** — the official inventory of every `DOTNET_Jit*` switch.
 - **BenchmarkDotNet docs** — the `[DisassemblyDiagnoser]` page is a tiny page; read it once.
 - **EgorBo's blog** — many posts walking through how a specific C# construct gets compiled in modern .NET.
 - **Konrad Kokosa — *Pro .NET Memory Management*** (book) — best treatment of how to *interpret* what you see in the dump.

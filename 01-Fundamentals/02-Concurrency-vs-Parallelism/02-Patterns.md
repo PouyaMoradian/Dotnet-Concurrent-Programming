@@ -115,11 +115,14 @@ Most real systems mix both. A web request fans out three sub-queries (concurrenc
 ```csharp
 public async Task<IResult> Aggregate(int id)
 {
-    // Fan-out concurrent IO
-    var (a, b, c) = await TaskExtensions.WhenAll(
-        _serviceA.Get(id),
-        _serviceB.Get(id),
-        _serviceC.Get(id));
+    // Fan-out concurrent IO. (There is no built-in tuple-returning WhenAll;
+    // start the tasks, await them together, then read the results. A tuple-returning
+    // overload is available via the TaskTupleAwaiter NuGet package if you prefer.)
+    var ta = _serviceA.Get(id);
+    var tb = _serviceB.Get(id);
+    var tc = _serviceC.Get(id);
+    await Task.WhenAll(ta, tb, tc);
+    var (a, b, c) = (ta.Result, tb.Result, tc.Result);
 
     // Parallel compute
     var merged = await Task.Run(() => MergeAndScore(a, b, c));

@@ -32,12 +32,12 @@ The CLR's *implementation* on x86 is stricter than the spec requires — for exa
 
 The relevant clauses (paraphrased):
 
-- §I.12.6.2 — "A conforming CLI shall guarantee that read and write access to properly aligned memory locations no larger than the native word size … shall be atomic." (No tearing.)
-- §I.12.6.4 — "Optimisations that change the relative order of volatile operations are not allowed."
-- §I.12.6.5 — "Volatile reads have acquire semantics … volatile writes have release semantics."
-- §I.12.6.6 — "Reference assignments shall be atomic."
+- §I.12.6.6 (*Atomic reads and writes*) — "A conforming CLI shall guarantee that read and write access to properly aligned memory locations no larger than the native word size … shall be atomic." (No tearing.) This same clause is what makes reference assignments atomic.
+- §I.12.6.7 (*Volatile reads and writes*) — optimisations that change the relative order of volatile operations are not allowed; "volatile reads have acquire semantics … volatile writes have release semantics."
 
-You won't need to recite these clauses; you do need to internalise the underlying facts. Of the four, atomic reference assignment (clause §I.12.6.6) is probably the most useful single fact — it's what makes the lock-free "copy-on-write + atomic publication" pattern work.
+(Note: §I.12.6.2 is *Alignment* and §I.12.6.4/.5 are *Optimization* / *Locks and threads* — the atomicity and volatile guarantees live in .6 and .7.)
+
+You won't need to recite these clauses; you do need to internalise the underlying facts. Atomic reference assignment (clause §I.12.6.6) is probably the most useful single fact — it's what makes the lock-free "copy-on-write + atomic publication" pattern work.
 
 ## Sequential consistency, why it's not the default, and why it doesn't matter much
 

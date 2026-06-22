@@ -61,7 +61,7 @@ On x86, after both threads run, `(r1, r2) == (0, 0)` is a *legal* outcome. Why? 
 |---|---|---|
 | **Sequential consistency** (SC) | No reorderings | A textbook ideal; no real CPU |
 | **Total Store Order** (TSO) | Store→Load only | x86, x86-64 |
-| **Processor Consistency** (PC) | Store→Load + per-thread stores can be reordered as observed by others (with constraints) | Some old POWER variants |
+| **Processor Consistency** (PC) | Store→Load + per-thread stores can be reordered as observed by others (with constraints) | Largely historical (Goodman's model; early x86 before TSO was formalised) |
 | **Release Consistency** (RC) | Everything except where you put an explicit barrier | ARM64, POWER, RISC-V |
 | **Relaxed** | All reorderings | A theorist's model; no real CPU is fully relaxed for atomics |
 

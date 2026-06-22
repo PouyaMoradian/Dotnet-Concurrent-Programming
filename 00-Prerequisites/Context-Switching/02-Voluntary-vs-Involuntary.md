@@ -25,7 +25,7 @@ The aftermath: the new thread doesn't suffer from the *previous* thread's caches
 
 An involuntary switch is preemption — the scheduler decides "you've had enough CPU" or "someone higher priority showed up". Common causes:
 
-- The thread used its full quantum. On Windows desktop that's ~20 ms; on Linux ~6 ms; on Windows server up to 120 ms for foreground processes. (See [03-OS-Schedulers.md](03-OS-Schedulers.md).)
+- The thread used its full quantum. On Windows client that's ~30 ms (2 clock intervals), boosted up to ~90 ms for the foreground app; on Linux a CFS time slice is typically a few ms; on Windows server ~180 ms. (See [03-OS-Schedulers.md](03-OS-Schedulers.md).)
 - A higher-priority thread became runnable (e.g., an IO interrupt unblocked a service thread).
 - Inter-processor interrupts for load balancing (the scheduler moving threads between cores to balance load).
 

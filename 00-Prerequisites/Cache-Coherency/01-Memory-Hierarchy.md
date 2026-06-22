@@ -9,7 +9,7 @@ Typical numbers for a 4 GHz x86-64 core in 2024–2026 (Intel Sapphire Rapids / 
 | Level | Where it lives | Capacity (per core unless noted) | Latency | Bandwidth |
 |---|---|---|---|---|
 | Registers | inside the core | 16–32 × 64-bit GP (general-purpose), 32 × 128–512-bit SIMD (vector) | 0 cycles | ~1 op/cycle |
-| L1d (data) | inside the core | 32–48 KB (Intel 48), 64 KB (Apple, AMD) | 4–5 cycles (~1 ns) | ~200 GB/s |
+| L1d (data) | inside the core | 32–48 KB (Intel 48, AMD Zen 32), 128 KB on Apple P-cores | 4–5 cycles (~1 ns) | ~200 GB/s |
 | L1i (instructions) | inside the core | 32 KB | 4–5 cycles | ~200 GB/s |
 | L2 | inside the core | 512 KB – 2 MB (4 MB on Apple) | 12–14 cycles (~3 ns) | ~100 GB/s |
 | L3 (LLC — Last-Level Cache) | shared on the die | 8 MB – 256 MB | 40–50 cycles (~10–15 ns) | ~50 GB/s |

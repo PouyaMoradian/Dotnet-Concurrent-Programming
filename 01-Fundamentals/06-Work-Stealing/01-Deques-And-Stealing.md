@@ -43,7 +43,7 @@ A worker that finds its own deque empty does the following:
 2. Otherwise, pick a peer worker (typically randomly).
 3. Try to steal from the bottom of that peer's deque.
 4. If the steal fails (deque was empty, or contention), try another peer.
-5. After N failed attempts (configurable, ~100 in the .NET implementation), park the worker and wait for new work to arrive.
+5. Once it has scanned every other worker's deque and still found nothing, park the worker on a semaphore and wait to be signalled when new work arrives.
 
 The parking step is important. A worker that spins forever burns a core; the pool wants idle workers to sleep so other workers can use the CPU.
 
@@ -78,7 +78,7 @@ The work-stealing implementation is in `src/libraries/System.Private.CoreLib/src
 The implementation has a few neat tricks beyond the textbook algorithm:
 
 - Each worker's deque grows dynamically (starting at 32 slots), so workloads that fork heavily don't pay for a giant per-worker buffer that's never used.
-- Stealing is implemented with `Interlocked.CompareExchange` on the deque's `m_headIndex`, making it lock-free.
-- The global queue is also a lock-free MPSC structure (multi-producer, single-consumer per pickup).
+- The owner pushes/pops at its own end with volatile index reads plus an `Interlocked.Exchange` on the index, and no lock in the common case; only when a pop might race a thief does it fall back to a per-deque `SpinLock` (`m_foreignLock`). The *steal* path is not lock-free: thieves take that same `m_foreignLock` and advance `m_headIndex` via `Interlocked.Exchange` while holding it.
+- The global queue is a lock-free `ConcurrentQueue<object>` (multi-producer, multi-consumer).
 
 You don't need to know any of this to use `Task.Run`. You do need to know it to understand why the scheduler does what it does when you profile.

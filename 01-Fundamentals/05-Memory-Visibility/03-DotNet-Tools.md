@@ -18,7 +18,7 @@ Pros:
 
 Cons:
 
-- Doesn't work on `long`, `double`, structs — only on integer types up to pointer size and references. The compiler errors on the unsupported cases (good!).
+- Doesn't work on `long`, `double`, or structs — only on word-sized-or-smaller value types (`bool`, `byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `char`, `float`, enums with one of those as the underlying type, `IntPtr`/`UIntPtr`, pointers) and reference types. The compiler errors on the unsupported cases (good!).
 - Provides release-acquire only; not a full barrier.
 - Less explicit than `Volatile.Read/Write` at the call site, which can make debugging harder.
 

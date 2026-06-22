@@ -43,7 +43,7 @@ Run `ProcessVsThreadDemo` and you'll see real numbers for your hardware. The out
   1000 async no-ops:       start+wait =     1 ms
 ```
 
-Read the three rows together: the first row builds 1000 OS threads, each with a 1 MB stack reservation, and tears them down. The second row queues 1000 work items into a pool that has perhaps 16 threads, which pick them up in turn. The third row creates 1000 already-completed `Task` objects that never even hit the queue.
+Read the three rows together: the first row builds 1000 OS threads, each with a 1 MB stack reservation, and tears them down. The second row queues 1000 work items into a pool that has perhaps 16 threads, which pick them up in turn. The third row stores the cached `Task.CompletedTask` singleton 1000 times — no per-task allocation at all, and nothing ever hits the queue.
 
 ## When the gap matters
 

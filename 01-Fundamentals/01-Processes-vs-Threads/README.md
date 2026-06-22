@@ -9,7 +9,7 @@ Almost every confusion in this area comes from treating "process" and "thread" a
 | Address space | Own (isolated by MMU) | Shared with siblings in the same process |
 | Crash blast radius | Confined to itself | Whole process dies |
 | File handles, sockets | Own table | Shared with siblings |
-| Default stack size | (process has heap) | 1 MB user-mode (Windows / Linux x64), 4 MB on Windows Server |
+| Default stack size | (process has heap) | 1 MB on Windows; on Linux follows `ulimit -s` (commonly 8 MB) |
 | Creation cost | ms range — `fork`/`CreateProcess` | µs range — `pthread_create`/`CreateThread` |
 | Communication | IPC (pipes, sockets, shared memory, gRPC) | Shared memory + sync primitives |
 | Scheduling unit | No (it's a container; threads are scheduled) | Yes |

@@ -1,43 +1,60 @@
-# Context switching
+# Context switching — overview
 
-A **context switch** is what the OS scheduler does when it takes one thread off a CPU and puts another on. It costs more than developers usually think, and the cost is wildly bimodal.
+A **context switch** is what the OS scheduler does when it takes one thread off a CPU and puts another on. It costs more than developers usually think, the cost is wildly bimodal, and it's the single biggest reason `async`/`await` beats blocking for IO-bound workloads.
 
-## What gets saved and restored
+This section walks through the anatomy of a switch, the difference between voluntary and involuntary switches, what Windows and Linux's schedulers actually do, the implications for .NET code, and the tooling to observe it.
 
-| Component | Cost |
+## What's in this section
+
+| File | What it covers |
 |---|---|
-| General-purpose registers + flags | A handful of cycles |
-| FPU / SIMD state (XMM/YMM/ZMM, ARM SVE) | Tens of cycles, sometimes lazy-saved |
-| Page table base register (CR3 on x86) on cross-process | TLB invalidation → many hundreds of cycles |
-| Kernel-mode entry/exit | ~100–500 cycles (mitigated post-Spectre by KPTI/KAISER which adds more) |
+| [01-Anatomy-of-a-Switch.md](01-Anatomy-of-a-Switch.md) | What state actually gets saved and restored; the **TLB** (Translation Lookaside Buffer — the per-core cache of virtual→physical address translations); the **FPU** (Floating-Point Unit, which holds wide vector state too); kernel-entry overhead; **KPTI** (Kernel Page Table Isolation — the Meltdown mitigation); the resulting microsecond budget |
+| [02-Voluntary-vs-Involuntary.md](02-Voluntary-vs-Involuntary.md) | The two flavours and why their costs differ in practice |
+| [03-OS-Schedulers.md](03-OS-Schedulers.md) | Windows quanta and priority; Linux **CFS** (Completely Fair Scheduler) and its replacement **EEVDF** (Earliest Eligible Virtual Deadline First); how scheduling decisions are made |
+| [04-DotNet-Implications.md](04-DotNet-Implications.md) | `Thread.Sleep` vs `Task.Delay`; timer resolution; `SpinWait`; why pool threads stay hot |
+| [05-Observation-Tools.md](05-Observation-Tools.md) | `dotnet-counters`, `dotnet-trace`, `perf sched`, **ETW** (Event Tracing for Windows), PerfView |
 
-That gives a **lower bound** for a context switch on the same CPU, with hot caches, of ~1 µs. The realistic average on a busy server is **2–10 µs** when you include cache disturbance — the new thread cold-misses on lines the previous one had warmed.
+## The 60-second summary
 
-## Why this matters for .NET
+The work per switch, roughly:
 
-- **`Thread.Sleep(1)` is not "sleep for 1 ms"** — it's "stop running for at least the OS scheduler's tick quantum, which on Windows is usually ~15.6 ms unless something has called `timeBeginPeriod`."
-- **Synchronous waiting is expensive** — every `lock` that contends causes a sleep + wake. SpinLock and Monitor's lightweight spinning exist precisely to amortise this for short critical sections.
-- **Async beats sync for IO-bound code** — because `await` doesn't park the thread; it returns it to the pool.
+| Cost component | Cycles | Wall time |
+|---|---|---|
+| Kernel entry (syscall / interrupt) | 100–500 | 30–150 ns |
+| Save current thread's registers (GPRs + flags) | tens | ~10 ns |
+| Lazy or eager FPU/SIMD save (floating-point + vector registers) | tens to hundreds | 10–100 ns |
+| If cross-process: TLB flush (`CR3` is the x86 page-table base register; reloading it switches address spaces) | hundreds | 100–300 ns |
+| Pick next thread from runqueue | tens to hundreds | 30–100 ns |
+| Restore next thread's registers | tens | ~10 ns |
+| **Same-process, hot caches: total** | ~1000–4000 | **~1 µs** |
+| **Realistic with cache disturbance** | several thousand | **2–10 µs** |
 
-## Fairness and quanta
+Two distinct gotchas you'll meet again later:
 
-Both Windows and Linux use preemptive, priority-based schedulers with anti-starvation. The default thread *quantum* (the amount of CPU time before forced preemption) is roughly:
+1. The *direct* cost (kernel + register save/restore) is ~1 µs. The *indirect* cost (the cache the previous thread warmed for itself, now cold for the new one) often dwarfs it. A heavily-multithreaded workload can lose 20–40% of throughput to context-switch-induced cache thrashing alone.
+2. The OS's notion of "1 ms" is much coarser than you'd expect. A timer fired with 1 ms requested may not wake up for ~15.6 ms on a default Windows. `Thread.Sleep(1)` is famously misnamed.
 
-| OS | Default quantum |
-|---|---|
-| Windows desktop | ~20 ms (3 quanta of ~6.6 ms each on a `Thread`) |
-| Windows server | ~120 ms (foreground apps) |
-| Linux CFS | dynamic; `sched_min_granularity_ns` ≈ 1 ms; `sched_latency_ns` ≈ 6 ms |
+## Where this shows up in .NET
 
-Inside a quantum, a thread keeps running unless it blocks (calls a blocking syscall) or yields. After a quantum, the scheduler picks another runnable thread.
+- **`async`/`await` avoids switches.** When an `await` parks a state machine, the thread returns to the pool to do other work. No switch happens until the awaited operation completes. Compare to a blocking `WaitOne` — the thread parks, costing a switch when work resumes.
+- **`Thread.Sleep(1)` ≠ "sleep 1 ms".** It's "sleep at least the current timer resolution", typically ~15.6 ms.
+- **`lock`'s fast path doesn't switch.** It spins briefly, then upgrades to a kernel wait if contended. The upgrade is what costs.
+- **`Task.Run` enters a thread pool worker.** Pool workers are kept warm so the next dispatch doesn't pay thread-creation cost (~150 µs).
+- **Heavy preemption shows up as `lock-contention-count` and a high voluntary-switch rate.** See [05-Observation-Tools.md](05-Observation-Tools.md).
 
-## Voluntary vs involuntary switches
+## The big rule
 
-- **Voluntary**: `await Task.Delay`, `lock` contention, IO. Cheap-ish — the thread chose to give up the CPU.
-- **Involuntary**: scheduler preempts you mid-work. Worst-case for caches because your hot lines are now cold.
+If your workload is IO-bound, prefer async — the thread doesn't sleep, so no switch.
+If your workload is CPU-bound, prefer worker threads sized to physical cores — every extra thread is a forced switch.
+If your workload is mixed, do both, and measure.
 
-You can observe both with `dotnet-counters monitor` watching `System.Runtime / threadpool-thread-count` and your OS's per-thread CPU stats.
+## Demos in this chapter that exercise this section
 
-## Lab
+- **`ContextSwitchDemo`** (demo 2) — ping-pong two threads through a `ManualResetEventSlim`; measure round-trip cost.
+- **`BranchPredictionDemo`** (demo 4) — observes pipeline behaviour *between* switches; an interrupted run shows different numbers, which is itself a context-switch lesson.
 
-Run the chapter 00 program and pick the *Context switch ping-pong* demo. On a quiet desktop, expect ~2–6 µs per round trip via `ManualResetEventSlim`. Pin the process to one core (`taskset -c 0`) and you should see it drop — same-core has hot caches.
+## Further reading
+
+- **Brendan Gregg — `brendangregg.com`** — every blog post about scheduler observability is gold.
+- **Microsoft Docs — *Scheduling priorities*** (Windows) and **`man 7 sched`** (Linux).
+- **Joe Duffy — *Concurrent Programming on Windows*** — chapter 5 is the canonical .NET-flavoured treatment.

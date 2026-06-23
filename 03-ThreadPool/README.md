@@ -28,7 +28,7 @@ Pre-.NET 6, the worker side of the pool was implemented in C++ inside CoreCLR. A
 
 ### Worker side
 
-- **Per-worker local deque** + **global FIFO queue**. Work-stealing as in [01-Fundamentals/Work-Stealing](../01-Fundamentals/Work-Stealing/).
+- **Per-worker local deque** + **global FIFO queue**. Work-stealing as in [01-Fundamentals/06-Work-Stealing](../01-Fundamentals/06-Work-Stealing/).
 - Workers run user delegates and async continuations.
 - Default minimum threads = `Environment.ProcessorCount`. Default max = a large number (32,767 on .NET 8). Configure via `ThreadPool.SetMinThreads` / `SetMaxThreads`.
 

@@ -49,4 +49,4 @@ If you find yourself reading or writing a shared variable without a lock:
 ## Demos
 
 - `MemoryVisibilityDemo` shows a working version using `Volatile`. Try removing the volatiles and running on ARM64 — you'll catch the rare miss.
-- `TornLongReadDemo` shows the worse failure mode: a 64-bit field, read concurrently with writes, can produce a value that *was never written*. On 32-bit hardware it's routine; on 64-bit with deliberate misalignment, observable.
+- `TornLongReadDemo` shows the worse failure mode: a 64-bit value published as two separate 32-bit writes (what a 32-bit runtime does for every `long`) can be read back as a value that *was never written*. An aligned 64-bit `long` is already atomic on 64-bit .NET; the demo contrasts that non-atomic publication against the atomic `Interlocked.Read` fix.

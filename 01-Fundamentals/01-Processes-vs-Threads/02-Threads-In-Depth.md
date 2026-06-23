@@ -26,7 +26,7 @@ On modern x86-64 Linux, a same-process context switch is ~1–3 µs of pure CPU.
 
 ## How the scheduler decides
 
-Both Linux and Windows use **priority-based, preemptive, multilevel feedback scheduling** (CFS on modern Linux, the multilevel priority scheduler on Windows). The simplified rules:
+Both Linux and Windows use **priority-based, preemptive, multilevel feedback scheduling** (EEVDF on Linux 6.6+, formerly CFS; the multilevel priority scheduler on Windows). The simplified rules:
 
 - Each thread has a priority. Higher priority preempts lower.
 - Within the same priority, threads get **time slices** — typically ~10 ms — after which they're rotated to the back of the runnable queue.
@@ -37,7 +37,7 @@ In .NET specifically you almost never set thread priority. The exceptions are re
 
 ## Stack sizes — the underrated cost of `new Thread`
 
-A `new Thread()` allocates a default stack of **1 MB** on x64 Windows; on Linux the default follows the process `ulimit -s`, commonly **8 MB**. (There is no special 4 MB "Windows Server" default — that figure is an IIS/ASP.NET hosting artifact, not an OS-SKU default.) That allocation is *reserved* (address space committed but not necessarily backed by physical memory) until the thread first touches it. Still, 1 MB × 10,000 threads = 10 GB of address space (and far more on Linux's larger default). That's why "spin up a thread per request" hit a wall in the late '90s and why the C10K problem birthed event loops, then async/await.
+A `new Thread()` allocates a default stack of **1 MB** on x64 Windows; on Linux the default follows the process `ulimit -s`, commonly **8 MB**. (There is no special 4 MB "Windows Server" default; that figure is folklore — the Windows default is 1 MB regardless of SKU, and IIS/ASP.NET hosting actually *shrinks* the stack to 256–512 KB.) That allocation is *reserved* (address space committed but not necessarily backed by physical memory) until the thread first touches it. Still, 1 MB × 10,000 threads = 10 GB of address space (and far more on Linux's larger default). That's why "spin up a thread per request" hit a wall in the late '90s and why the C10K problem birthed event loops, then async/await.
 
 You can override the stack with `new Thread(work, 256 * 1024)` (256 KB). It works, but if any frame on that thread overflows you get a `StackOverflowException` that crashes the process unrecoverably. Don't do this unless you've measured and have a reason.
 

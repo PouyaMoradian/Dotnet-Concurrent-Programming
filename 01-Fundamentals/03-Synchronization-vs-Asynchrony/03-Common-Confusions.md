@@ -92,7 +92,7 @@ public async Task DoWork()
 }
 ```
 
-`SaveAsync()` returns a `Task` you've discarded. If `SaveAsync` throws, no one observes the exception until the GC finalises the task — which is too late to react. Modern Roslyn analysers flag this (`CS4014`).
+`SaveAsync()` returns a `Task` you've discarded. If `SaveAsync` throws, no one observes the exception until the GC finalises the task — which is too late to react. The C# compiler warns on this (`CS4014`); the analyzer equivalent is `VSTHRD110`.
 
 The fix: `await SaveAsync()`, or if you genuinely want fire-and-forget, `_ = SaveAsync().ContinueWith(t => Log.Error(t.Exception), TaskContinuationOptions.OnlyOnFaulted);` — and even then, prefer a queue.
 
